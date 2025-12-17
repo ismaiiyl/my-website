@@ -1,0 +1,1 @@
+:root{--primary: #3b82f6;--dark: #0f172a}body{margin:0;padding:0;background-color:var(--dark);color:#f8fafc;font-family:Inter,sans-serif}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#0f172a}::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#334155}
