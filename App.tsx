@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import * as Router from 'react-router-dom';
+import { DataProvider } from './context/DataContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -10,14 +11,11 @@ import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Contact from './pages/Contact';
 
-// Sahifa o'zgarganda oynani eng yuqoriga ko'tarish uchun yordamchi komponent
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
-
+  const { pathname } = Router.useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-
   return null;
 };
 
@@ -28,23 +26,21 @@ const AppContent = () => {
       <Navbar />
       
       <main className="flex-grow relative">
-        {/* Global Background Elements */}
         <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-50">
            <div className="absolute top-[10%] left-[10%] w-[500px] h-[500px] bg-blue-900/10 rounded-full blur-[100px]"></div>
            <div className="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[100px]"></div>
         </div>
         
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:id" element={<BlogPostDetail />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:id" element={<ProjectDetail />} />
-          <Route path="/contact" element={<Contact />} />
-          {/* Noto'g'ri URL kiritilsa Home sahifasiga yo'naltirish */}
-          <Route path="*" element={<Home />} />
-        </Routes>
+        <Router.Routes>
+          <Router.Route path="/" element={<Home />} />
+          <Router.Route path="/blog" element={<Blog />} />
+          <Router.Route path="/blog/:id" element={<BlogPostDetail />} />
+          <Router.Route path="/about" element={<About />} />
+          <Router.Route path="/projects" element={<Projects />} />
+          <Router.Route path="/projects/:id" element={<ProjectDetail />} />
+          <Router.Route path="/contact" element={<Contact />} />
+          <Router.Route path="*" element={<Home />} />
+        </Router.Routes>
       </main>
 
       <Footer />
@@ -54,9 +50,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <DataProvider>
+      <Router.BrowserRouter>
+        <AppContent />
+      </Router.BrowserRouter>
+    </DataProvider>
   );
 }
 

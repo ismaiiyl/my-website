@@ -1,35 +1,46 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import * as Router from 'react-router-dom';
+import * as Firestore from 'firebase/firestore';
 import { db } from '../firebase';
+import { useData } from '../context/DataContext';
 import { BlogPost } from '../types';
 import { Badge, Button } from '../components/UI';
 import { ArrowLeft, Calendar, Tag } from 'lucide-react';
 import { formatDate } from '../utils/helpers';
 
 const BlogPostDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { id } = Router.useParams<{ id: string }>();
+  const navigate = Router.useNavigate();
+  const { posts } = useData();
   const [post, setPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
       if (!id) return;
+      
+      // Check cache first
+      const cached = posts.find(p => p.id === id);
+      if (cached) {
+        setPost(cached);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const docRef = doc(db, 'posts', id);
-        const docSnap = await getDoc(docRef);
+        const docRef = Firestore.doc(db, 'posts', id);
+        const docSnap = await Firestore.getDoc(docRef);
         if (docSnap.exists()) {
           setPost({ id: docSnap.id, ...docSnap.data() } as BlogPost);
         }
       } catch (error) {
-        console.error("Error fetching post:", error);
+        // Error handled silently
       } finally {
         setLoading(false);
       }
     };
     fetchPost();
-  }, [id]);
+  }, [id, posts]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">

@@ -1,41 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { BlogPost } from '../types';
+import { useData } from '../context/DataContext';
 import { Card, Badge, Button } from '../components/UI';
 import { Search, Frown } from 'lucide-react';
-import { db } from '../firebase';
 import { formatDate } from '../utils/helpers';
-import { collection, query, orderBy, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import * as Router from 'react-router-dom';
 
 const Blog: React.FC = () => {
-  const navigate = useNavigate();
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = Router.useNavigate();
+  const { posts, loading, getPosts } = useData();
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      console.log("🔥 [Blog] Postlarni yuklash boshlandi...");
-      try {
-        const postsQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-        const querySnapshot = await getDocs(postsQuery);
-        
-        const fetchedPosts: BlogPost[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as any)
-        } as BlogPost));
-        
-        console.log(`✅ [Blog] ${fetchedPosts.length} ta post yuklandi:`, fetchedPosts);
-        setPosts(fetchedPosts);
-      } catch (error) {
-        console.error("❌ [Blog] Xatolik:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+    getPosts(); // Xotirada bo'lsa yuklamaydi
+  }, [getPosts]);
 
   const filteredPosts = posts.filter(post => 
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,7 +40,7 @@ const Blog: React.FC = () => {
         </div>
       </div>
 
-      {loading ? (
+      {loading.posts && posts.length === 0 ? (
         <div className="flex justify-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>

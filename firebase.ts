@@ -1,6 +1,8 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
+
+// Use namespaced imports to bypass "no exported member" errors in some environments
+import * as FirebaseApp from "firebase/app";
+import * as Firestore from "firebase/firestore";
+import * as Analytics from "firebase/analytics";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -13,9 +15,9 @@ const firebaseConfig = {
   measurementId: "G-NRVNWTF0K6"
 };
 
-// Initialize Firebase (Modular SDK)
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const analytics = getAnalytics(app);
+// Initialize Firebase (Modular SDK) using namespaces
+const app = FirebaseApp.initializeApp(firebaseConfig);
+const db = Firestore.getFirestore(app);
+const analytics = Analytics.getAnalytics(app);
 
 export { db };

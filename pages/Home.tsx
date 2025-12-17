@@ -1,61 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { BlogPost, ProfileData } from '../types';
+import React, { useEffect } from 'react';
+import { useData } from '../context/DataContext';
 import { Button, Card, Badge } from '../components/UI';
 import { ArrowRight } from 'lucide-react';
-import { db } from '../firebase';
 import { formatDate } from '../utils/helpers';
-import { doc, getDoc, collection, query, orderBy, limit, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import * as Router from 'react-router-dom';
 
 const Home: React.FC = () => {
-  const navigate = useNavigate();
-  const [latestPosts, setLatestPosts] = useState<BlogPost[]>([]);
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = Router.useNavigate();
+  const { profile, posts, loading, getPosts } = useData();
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      console.log("🔥 [Home] Ma'lumotlarni yuklash boshlandi...");
+    getPosts(); // Only fetches if xotira bo'sh bo'lsa
+  }, [getPosts]);
 
-      try {
-        // 1. Profile (Hero) ma'lumotlarini olish
-        console.log("📡 [Home] Profile (main_info) so'ralmoqda...");
-        const profileRef = doc(db, 'profile', 'main_info');
-        const profileSnap = await getDoc(profileRef);
-        
-        if (profileSnap.exists()) {
-          const profileData = profileSnap.data() as ProfileData;
-          console.log("✅ [Home] Profile yuklandi:", profileData);
-          setProfile(profileData);
-        } else {
-          console.warn("⚠️ [Home] 'profile/main_info' hujjati topilmadi!");
-        }
-
-        // 2. Eng so'nggi 3 ta postni olish
-        console.log("📡 [Home] Postlar so'ralmoqda...");
-        const postsQuery = query(collection(db, 'posts'), orderBy('createdAt', 'desc'), limit(3));
-        const querySnapshot = await getDocs(postsQuery);
-        
-        const posts: BlogPost[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as any)
-        } as BlogPost));
-        
-        console.log(`✅ [Home] ${posts.length} ta post yuklandi:`, posts);
-        setLatestPosts(posts);
-
-      } catch (error) {
-        console.error("❌ [Home] Xatolik yuz berdi:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (loading) {
+  if (loading.profile && !profile) {
     return (
        <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -63,9 +21,11 @@ const Home: React.FC = () => {
     );
   }
 
+  // Sahifada faqat 3 ta postni ko'rsatamiz, lekin xotirada hammasi saqlanadi
+  const latestPosts = posts.slice(0, 3);
+
   return (
     <div className="animate-fade-in">
-      {/* Hero Section */}
       <section className="relative pt-32 pb-20 px-4 overflow-hidden">
         <div className="absolute top-20 left-1/4 w-72 h-72 bg-blue-600/20 rounded-full blur-[100px] -z-10"></div>
         <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px] -z-10"></div>
@@ -93,7 +53,6 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Latest Posts Section */}
       <section className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-end mb-10">
@@ -106,44 +65,49 @@ const Home: React.FC = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {latestPosts.map((post) => (
-              <Card 
-                  key={post.id} 
-                  className="flex flex-col h-full group cursor-pointer" 
-                  onClick={() => navigate(`/blog/${post.id}`)}
-              >
-                <div className="h-48 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-slate-900/20 group-hover:bg-transparent transition-colors z-10"></div>
-                  <img 
-                    src={post.imageUrl} 
-                    alt={post.title} 
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" 
-                  />
-                  <div className="absolute top-4 left-4 z-20">
-                    <Badge color="blue">{post.category}</Badge>
+          {loading.posts && posts.length === 0 ? (
+            <div className="flex justify-center py-10">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {latestPosts.map((post) => (
+                <Card 
+                    key={post.id} 
+                    className="flex flex-col h-full group cursor-pointer" 
+                    onClick={() => navigate(`/blog/${post.id}`)}
+                >
+                  <div className="h-48 overflow-hidden relative">
+                    <img 
+                      src={post.imageUrl} 
+                      alt={post.title} 
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" 
+                    />
+                    <div className="absolute top-4 left-4 z-20">
+                      <Badge color="blue">{post.category}</Badge>
+                    </div>
                   </div>
-                </div>
-                <div className="p-6 flex-1 flex flex-col">
-                  <div className="text-sm text-slate-500 mb-2">{formatDate(post.date)}</div>
-                  <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-1">
-                    {post.excerpt}
-                  </p>
-                  <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center text-blue-400 text-sm font-medium">
-                    Read More <ArrowRight className="ml-2 w-4 h-4" />
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="text-sm text-slate-500 mb-2">{formatDate(post.date)}</div>
+                    <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                      {post.title}
+                    </h3>
+                    <p className="text-slate-400 text-sm mb-4 line-clamp-3 flex-1">
+                      {post.excerpt}
+                    </p>
+                    <div className="mt-auto pt-4 border-t border-slate-700/50 flex items-center text-blue-400 text-sm font-medium">
+                      Read More <ArrowRight className="ml-2 w-4 h-4" />
+                    </div>
                   </div>
+                </Card>
+              ))}
+              {latestPosts.length === 0 && !loading.posts && (
+                <div className="col-span-full text-center text-slate-500 py-10 border border-dashed border-slate-700 rounded-lg">
+                  <p>Articles not found.</p>
                 </div>
-              </Card>
-            ))}
-            {latestPosts.length === 0 && (
-              <div className="col-span-full text-center text-slate-500 py-10 border border-dashed border-slate-700 rounded-lg">
-                <p>Maqolalar topilmadi. Firebasega ma'lumot qo'shing.</p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
     </div>
