@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // Custom domain ismaaiiyl.me rootda bo'lgani uchun '/' qolishi kerak
-      base: '/',
+      // GitHub Pages va custom domenlar uchun eng xavfsiz yo'l
+      base: './',
       server: {
         port: 3000,
         host: '0.0.0.0',

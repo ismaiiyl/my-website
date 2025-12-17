@@ -51,9 +51,10 @@ const AppContent = () => {
 function App() {
   return (
     <DataProvider>
-      <Router.BrowserRouter>
+      {/* Use HashRouter to prevent 404 errors on manual URL entry in static hosting environments like GitHub Pages */}
+      <Router.HashRouter>
         <AppContent />
-      </Router.BrowserRouter>
+      </Router.HashRouter>
     </DataProvider>
   );
 }
