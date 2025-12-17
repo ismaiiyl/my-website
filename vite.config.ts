@@ -9,6 +9,9 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
+      // ✅ GitHub Pages uchun base yo'l
+      base: '/my-website/',  // <-- bu yerga GitHub repo nomingizni yozing
+
       server: {
         port: 3000,
         host: '0.0.0.0',
