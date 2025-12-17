@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -6,10 +7,16 @@
     <title>Personal Portfolio | Blog</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Poppins:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/index.css">
+    <!-- Using relative paths to ensure it works on subdirectories -->
+    <link rel="stylesheet" href="index.css">
   </head>
   <body class="bg-[#0f172a] text-slate-50 antialiased">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="index.tsx"></script>
+    <script>
+      // SPA redirect trick for GitHub Pages
+      // If the user refreshes on a sub-route, this script can help 
+      // but for simple cases, loading the index.tsx is enough as the router will handle the path
+    </script>
   </body>
 </html>
