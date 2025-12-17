@@ -1,37 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Project } from '../types';
+import React, { useEffect } from 'react';
+import { useData } from '../context/DataContext';
 import { Card, Badge, Button } from '../components/UI';
-import { Maximize2, ArrowRight } from 'lucide-react';
-import { db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
-import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
+import * as Router from 'react-router-dom';
 
 const Projects: React.FC = () => {
-  const navigate = useNavigate();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = Router.useNavigate();
+  const { projects, loading, getProjects } = useData();
 
   useEffect(() => {
-    const fetchProjects = async () => {
-      console.log("🔥 [Projects] Loyihalarni yuklash boshlandi...");
-      try {
-        const querySnapshot = await getDocs(collection(db, 'projects'));
-        const fetchedProjects: Project[] = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as any)
-        } as Project));
-        
-        console.log(`✅ [Projects] ${fetchedProjects.length} ta loyiha yuklandi:`, fetchedProjects);
-        setProjects(fetchedProjects);
-      } catch (error) {
-        console.error("❌ [Projects] Xatolik:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProjects();
-  }, []);
+    getProjects(); // Faqat bir marta yuklaydi
+  }, [getProjects]);
 
   return (
     <div className="pt-24 pb-20 px-4 animate-fade-in max-w-7xl mx-auto min-h-screen">
@@ -42,7 +21,7 @@ const Projects: React.FC = () => {
         </p>
       </div>
 
-      {loading ? (
+      {loading.projects && projects.length === 0 ? (
         <div className="flex justify-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
@@ -87,9 +66,9 @@ const Projects: React.FC = () => {
               </div>
             </Card>
           ))}
-          {projects.length === 0 && (
+          {projects.length === 0 && !loading.projects && (
             <div className="col-span-full text-center text-slate-500 py-10 border border-dashed border-slate-700 rounded-lg">
-               Loyihalar topilmadi. Firebase 'projects' kolleksiyasini tekshiring.
+               Projects not found.
             </div>
           )}
         </div>

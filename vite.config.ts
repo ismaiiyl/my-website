@@ -9,9 +9,8 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     return {
-      // ✅ GitHub Pages uchun base yo'l
-      base: '/my-website/',  // <-- bu yerga GitHub repo nomingizni yozing
-
+      // Custom domain ismaaiiyl.me rootda bo'lgani uchun '/' qolishi kerak
+      base: '/',
       server: {
         port: 3000,
         host: '0.0.0.0',
@@ -25,6 +24,13 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        outDir: 'dist',
+        assetsDir: 'assets',
+        sourcemap: false,
+        minify: 'esbuild',
+        emptyOutDir: true,
       }
     };
 });

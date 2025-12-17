@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+// Use namespaced import to bypass "no exported member" errors in some environments
+import * as Router from 'react-router-dom';
 import { Menu, X, Code2 } from 'lucide-react';
 
 const Navbar: React.FC = () => {
@@ -18,7 +20,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link 
+          <Router.Link 
             to="/"
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => setIsOpen(false)}
@@ -29,13 +31,13 @@ const Navbar: React.FC = () => {
             <span className="text-xl font-heading font-bold text-white tracking-wide">
               Dev<span className="text-blue-400">Blog</span>
             </span>
-          </Link>
+          </Router.Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navLinks.map((link) => (
-                <NavLink
+                <Router.NavLink
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) => `px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
@@ -45,7 +47,7 @@ const Navbar: React.FC = () => {
                   }`}
                 >
                   {link.label}
-                </NavLink>
+                </Router.NavLink>
               ))}
             </div>
           </div>
@@ -67,7 +69,7 @@ const Navbar: React.FC = () => {
         <div className="md:hidden bg-slate-900/95 backdrop-blur-xl border-b border-slate-800">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
-              <NavLink
+              <Router.NavLink
                 key={link.path}
                 to={link.path}
                 onClick={() => setIsOpen(false)}
@@ -78,7 +80,7 @@ const Navbar: React.FC = () => {
                 }`}
               >
                 {link.label}
-              </NavLink>
+              </Router.NavLink>
             ))}
           </div>
         </div>

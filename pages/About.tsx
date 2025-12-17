@@ -1,40 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { SERVICES } from '../constants';
-import { ProfileData } from '../types';
+import { useData } from '../context/DataContext';
 import { Card, Badge, Button } from '../components/UI';
 import { Briefcase, User, Download, ExternalLink } from 'lucide-react';
-import { db } from '../firebase';
-import { doc, getDoc } from 'firebase/firestore';
 
 const About: React.FC = () => {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { profile, loading, getProfile } = useData();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      console.log("🔥 [About] Profile yuklash boshlandi...");
-      try {
-        const docRef = doc(db, 'profile', 'main_info');
-        const docSnap = await getDoc(docRef);
+    getProfile();
+  }, [getProfile]);
 
-        if (docSnap.exists()) {
-          const data = docSnap.data() as ProfileData;
-          console.log("✅ [About] Profile ma'lumotlari:", data);
-          setProfile(data);
-        } else {
-          console.warn("⚠️ [About] 'profile/main_info' hujjati topilmadi!");
-        }
-      } catch (error) {
-        console.error("❌ [About] Xatolik:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  if (loading) {
+  if (loading.profile && !profile) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
@@ -42,12 +19,10 @@ const About: React.FC = () => {
     );
   }
 
-  // Fallback UI if no data is found in DB
   if (!profile) {
     return (
       <div className="pt-32 text-center text-slate-400">
         <p>Profile information not available yet.</p>
-        <p className="text-sm mt-2">Please check 'profile/main_info' in Firebase.</p>
       </div>
     );
   }
@@ -56,8 +31,6 @@ const About: React.FC = () => {
 
   return (
     <div className="pt-24 pb-20 px-4 animate-fade-in max-w-4xl mx-auto">
-      
-      {/* Bio Section */}
       <section className="flex flex-col md:flex-row items-center gap-10 mb-20">
         <div className="w-40 h-40 md:w-56 md:h-56 shrink-0 relative">
           <div className="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20"></div>
@@ -95,7 +68,6 @@ const About: React.FC = () => {
         </div>
       </section>
 
-      {/* Services (Static icons) */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
         {SERVICES.map((service, idx) => (
           <Card key={idx} className="p-6 text-center hover:bg-slate-800/80">
@@ -108,7 +80,6 @@ const About: React.FC = () => {
         ))}
       </section>
 
-      {/* Skills from Firebase */}
       {profile.skills && profile.skills.length > 0 && (
         <section className="mb-20">
           <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
@@ -128,7 +99,6 @@ const About: React.FC = () => {
         </section>
       )}
 
-      {/* Experience from Firebase */}
       {profile.experience && profile.experience.length > 0 && (
         <section>
           <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-2">

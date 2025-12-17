@@ -1,34 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import * as Router from 'react-router-dom';
+import * as Firestore from 'firebase/firestore';
 import { db } from '../firebase';
+import { useData } from '../context/DataContext';
 import { Project } from '../types';
 import { Badge, Button } from '../components/UI';
 import { ArrowLeft, Github, ExternalLink, Layers } from 'lucide-react';
 
 const ProjectDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const { id } = Router.useParams<{ id: string }>();
+  const navigate = Router.useNavigate();
+  const { projects } = useData();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProject = async () => {
       if (!id) return;
+
+      // Check cache first
+      const cached = projects.find(p => p.id === id);
+      if (cached) {
+        setProject(cached);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const docRef = doc(db, 'projects', id);
-        const docSnap = await getDoc(docRef);
+        const docRef = Firestore.doc(db, 'projects', id);
+        const docSnap = await Firestore.getDoc(docRef);
         if (docSnap.exists()) {
           setProject({ id: docSnap.id, ...docSnap.data() } as Project);
         }
       } catch (error) {
-        console.error("Error fetching project:", error);
+        // Error handled silently
       } finally {
         setLoading(false);
       }
     };
     fetchProject();
-  }, [id]);
+  }, [id, projects]);
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">

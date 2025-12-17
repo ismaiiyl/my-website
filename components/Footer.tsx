@@ -1,30 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Github, Linkedin, Send, Twitter } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
-import { ProfileData } from '../types';
+import * as Router from 'react-router-dom';
+import { useData } from '../context/DataContext';
 
 const Footer: React.FC = () => {
-  const [socialLinks, setSocialLinks] = useState<ProfileData['socialLinks'] | null>(null);
-
-  useEffect(() => {
-    const fetchSocialLinks = async () => {
-      try {
-        const docRef = doc(db, 'profile', 'main_info');
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          const data = docSnap.data() as ProfileData;
-          setSocialLinks(data.socialLinks);
-        }
-      } catch (error) {
-        console.error("Error fetching footer social links:", error);
-      }
-    };
-
-    fetchSocialLinks();
-  }, []);
+  const { profile } = useData();
+  const socialLinks = profile?.socialLinks;
 
   return (
     <footer className="bg-slate-900 border-t border-slate-800 py-12">
@@ -39,69 +20,60 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Quick Links</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><Link to="/" className="hover:text-blue-400 transition-colors">Home</Link></li>
-              <li><Link to="/blog" className="hover:text-blue-400 transition-colors">Blog</Link></li>
-              <li><Link to="/projects" className="hover:text-blue-400 transition-colors">Projects</Link></li>
-              <li><Link to="/about" className="hover:text-blue-400 transition-colors">About Me</Link></li>
+              <li><Router.Link to="/" className="hover:text-blue-400 transition-colors">Home</Router.Link></li>
+              <li><Router.Link to="/blog" className="hover:text-blue-400 transition-colors">Blog</Router.Link></li>
+              <li><Router.Link to="/projects" className="hover:text-blue-400 transition-colors">Projects</Router.Link></li>
+              <li><Router.Link to="/about" className="hover:text-blue-400 transition-colors">About Me</Router.Link></li>
             </ul>
           </div>
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Social Media</h4>
             <div className="flex space-x-4">
-              {/* Github */}
               {socialLinks?.github && (
                 <a 
                   href={socialLinks.github} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
-                  aria-label="Github"
                 >
                   <Github className="w-5 h-5" />
                 </a>
               )}
               
-              {/* LinkedIn */}
               {socialLinks?.linkedin && (
                 <a 
                   href={socialLinks.linkedin} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
-                  aria-label="LinkedIn"
                 >
                   <Linkedin className="w-5 h-5" />
                 </a>
               )}
 
-              {/* Twitter */}
               {socialLinks?.twitter && (
                 <a 
                   href={socialLinks.twitter} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
-                  aria-label="Twitter"
                 >
                   <Twitter className="w-5 h-5" />
                 </a>
               )}
 
-              {/* Telegram (Using Send icon as standard for Telegram in Lucide) */}
               {socialLinks?.telegram && (
                 <a 
                   href={socialLinks.telegram} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white transition-all"
-                  aria-label="Telegram"
                 >
                   <Send className="w-5 h-5" />
                 </a>
               )}
               
-              {/* Fallback visual if data is loading or empty (optional, keeping clean for now) */}
-              {!socialLinks && (
+              {!profile && (
                  <div className="flex space-x-4 opacity-50">
                     <div className="w-10 h-10 rounded-full bg-slate-800 animate-pulse"></div>
                     <div className="w-10 h-10 rounded-full bg-slate-800 animate-pulse"></div>
