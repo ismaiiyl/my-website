@@ -10,7 +10,9 @@ import {
   Twitter, 
   ExternalLink,
   Copy,
-  Check
+  Check,
+  Coffee,
+  ChessKingIcon
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ProfileData } from '../types';
