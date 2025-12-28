@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, Badge, Button } from '../components/UI';
 import { 
@@ -11,7 +10,9 @@ import {
   Twitter, 
   ExternalLink,
   Copy,
-  Check
+  Check,
+  Coffee,
+  ChessKingIcon
 } from 'lucide-react';
 import { db } from '../firebase';
 import { ProfileData } from '../types';
@@ -93,6 +94,24 @@ const Contact: React.FC = () => {
       action: 'View Projects',
       link: profile?.socialLinks?.github,
       color: 'slate'
+    },
+    {
+      id: 'chess',
+      icon: <ChessKingIcon className="w-6 h-6" />,
+      label: 'Chess.com',
+      value: 'Profile',
+      action: 'View Profile',
+      link: profile?.socialLinks?.chess,
+      color: 'white'
+    },
+    {
+      id: 'buymeacoffee',
+      icon: <Coffee className="w-6 h-6" />,
+      label: 'Buy Me a Coffee',
+      value: 'Support My Work',
+      action: 'Support Me',
+      link: profile?.socialLinks?.buymeacoffee,
+      color: 'amber'
     },
     {
       id: 'twitter',

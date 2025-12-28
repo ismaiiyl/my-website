@@ -29,6 +29,8 @@ export interface SocialLinks {
   linkedin?: string;
   twitter?: string;
   telegram?: string;
+  buymeacoffee?: string;
+  chess?: string;
 }
 
 export interface Experience {
